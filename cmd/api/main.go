@@ -11,8 +11,10 @@ import (
 	"time"
 )
 
+// App Version
 const version = "1.0.0"
 
+// App config
 type config struct {
 	port int
 	env  string // dev, stg, prd, etc...
@@ -26,12 +28,12 @@ type application struct {
 
 func main() {
 	var cfg config
-	//read in the flag that are needed to populate the config
+	//read in the flag that are needed to populate the config ~ flag for using as extra cmd
 	flag.IntVar(&cfg.port, "port", 4000, "API port")
-	flag.StringVar(&cfg.env, "env", "dev", "dev, stg, prd")
+	flag.StringVar(&cfg.env, "env", "dev", "(dev | stg | prd")
 	flag.Parse()
 
-	//create a logger
+	//create a logger ~ use := for undeclared var
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 	//create install of out app
 	app := &application{
