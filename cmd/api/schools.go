@@ -1,4 +1,4 @@
-// Filename: cmd/api/schools
+// Filename: cmd/api/schools.go
 
 package main
 
@@ -16,7 +16,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 
 // createSchoolHandler for GET /v1/schools endpoints
 func (app *application) showSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	//Utilize Utility Methods From helpers.go
+	//Utilize Utility Methods/Functions from helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
 		http.NotFound(w, r)
