@@ -11,6 +11,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type envelope map[string]interface{}
+
 // Utility function for reading ID in Endpoint
 func (app *application) readIDParam(r *http.Request) (int64, error) {
 	// Use the param
@@ -26,7 +28,7 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	// Convert our map into a JSON object
 	js, err := json.Marshal(data)
 	// Format the JSON object for cmd -- Takes more resources than printing it normally
