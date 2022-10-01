@@ -53,7 +53,7 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	logger.Printf("Starting %s server ats %s", cfg.env, srv.Addr)
+	logger.Printf("Starting %s server at %s", cfg.env, srv.Addr)
 	//start the server
 	err := srv.ListenAndServe()
 	logger.Fatal(err)
