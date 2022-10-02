@@ -32,38 +32,23 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		app.badResquestReponse(w, r, err)
 		return
 	}
+	// Copy the values from the input struct to a new School struct
+	school := &data.School{
+		Name:    input.Name,
+		Level:   input.Level,
+		Contact: input.Contact,
+		Phone:   input.Phone,
+		Email:   input.Email,
+		Website: input.Website,
+		Address: input.Address,
+		Mode:    input.Mode,
+	}
 
 	// Initialize a new instance of validator
 	v := validator.New()
 
-	v.Check(input.Name != "", "name", "must be provided")
-	v.Check(len(input.Name) <= 200, "name", "must no more 200 characters")
-
-	v.Check(input.Level != "", "level", "must be provided")
-	v.Check(len(input.Level) <= 200, "level", "must no more 200 characters")
-
-	v.Check(input.Contact != "", "contact", "must be provided")
-	v.Check(len(input.Contact) <= 200, "contact", "must no more 200 characters")
-
-	v.Check(input.Phone != "", "phone", "must be provided")
-	v.Check(validator.Matches(input.Phone, validator.PhoneRX), "phone", "must be a valid phone number")
-
-	v.Check(input.Email != "", "email", "must be provided")
-	v.Check(validator.Matches(input.Email, validator.EmailRX), "email", "must be a valid email")
-
-	v.Check(input.Website != "", "website", "must be provided")
-	v.Check(validator.ValidWebsite(input.Website), "website", "must be a valid website")
-
-	v.Check(input.Address != "", "address", "must be provided")
-	v.Check(len(input.Address) <= 500, "address", "must no more 500 characters")
-
-	v.Check(input.Mode != nil, "mode", "must be provided")
-	v.Check(len(input.Mode) >= 1, "mode", "must contain at least one mode")
-	v.Check(len(input.Mode) <= 5, "mode", "must contain at most five mode")
-	v.Check(validator.Unique(input.Mode), "mode", "must not contain duplicates")
-
 	// Check the errors maps if there were any errors validation
-	if !v.Valid() {
+	if data.ValidateSchool(v, school); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
