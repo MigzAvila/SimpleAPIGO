@@ -47,3 +47,8 @@ func (app *application) MethodNotAllowedReponse(w http.ResponseWriter, r *http.R
 	message := fmt.Sprintf("The %s method is not supported for this resource", r.Method)
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
+
+// User provided validation errors
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
