@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -13,8 +14,26 @@ import (
 //createSchoolHandler for POST /v1/schools endpoints
 
 func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Creating a new School...")
+	// Target decode destination
+	var input struct {
+		Name    string   `json:"name"`
+		Level   string   `json:"level"`
+		Contact string   `json:"contact"`
+		Phone   string   `json:"phone"`
+		Email   string   `json:"email"`
+		Website string   `json:"website"`
+		Address string   `json:"address"`
+		Mode    []string `json:"mode"`
+	}
 
+	err := json.NewDecoder(r.Body).Decode(&input)
+
+	if err != nil {
+		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 // createSchoolHandler for GET /v1/schools endpoints
