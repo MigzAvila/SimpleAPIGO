@@ -3,6 +3,7 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"appletree.miguelavila.net/internal/validator"
@@ -50,4 +51,29 @@ func ValidateSchool(v *validator.Validator, school *School) {
 	v.Check(len(school.Mode) <= 5, "mode", "must contain at most five mode")
 	v.Check(validator.Unique(school.Mode), "mode", "must not contain duplicates")
 
+}
+
+// define a SchoolModel object that wraps a sql.DB connection pool
+type SchoolModel struct {
+	DB *sql.DB
+}
+
+// insert() allows us to create a new School
+func (m SchoolModel) Insert(school *School) error {
+	return nil
+}
+
+// Get() allows us to retrieve a specific School
+func (m SchoolModel) Get(id int64) (*School, error) {
+	return nil, nil
+}
+
+// Update() allows us to update a specific School
+func (m SchoolModel) Update(school *School) error {
+	return nil
+}
+
+// Delete() allows us to delete a specific School
+func (m SchoolModel) Delete(id int64) error {
+	return nil
 }

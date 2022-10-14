@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"appletree.miguelavila.net/internal/data"
 	_ "github.com/lib/pq"
 )
 
@@ -34,6 +35,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -61,10 +63,11 @@ func main() {
 	// log successful connection
 	logger.Printf("database connection pool established")
 
-	//create install of out app
+	//create install of out appmi
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: *data.NewModels(db),
 	}
 	//create out new servemux
 	mux := http.NewServeMux()
