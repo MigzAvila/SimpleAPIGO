@@ -177,3 +177,36 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 }
+
+func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
+	// This method does a complete replacement
+	// get the id of the school and update the school
+	//Utilize Utility Methods From helpers.go
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+	// delete the school from the database. send a 404 notFoundResponse status code to the client if there is no matching record
+
+	// fetch the original record from database
+	err = app.models.Schools.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	//  return 200 status ok the client with a successful message
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "school successfully deleted"}, nil)
+
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+}
