@@ -53,8 +53,23 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Display valid input
-	fmt.Fprintf(w, "%+v\n", input)
+	// create a school
+	err = app.models.Schools.Insert(school)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	// create a Location header for the newly created resource/school
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/schools/%d", school.ID))
+	// write the json response with 201 - created status code with the body
+	// being the school data and the headers being the headers map
+	err = app.writeJSON(w, http.StatusCreated, envelope{"school": school}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 }
 
 // createSchoolHandler for GET /v1/schools endpoints

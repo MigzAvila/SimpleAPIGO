@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"appletree.miguelavila.net/internal/validator"
+	"github.com/lib/pq"
 )
 
 type School struct {
@@ -60,7 +61,24 @@ type SchoolModel struct {
 
 // insert() allows us to create a new School
 func (m SchoolModel) Insert(school *School) error {
-	return nil
+	query := `
+		INSERT INTO schools (name, level, contact, phone, email, website, address, mode)	
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id, create_at, version
+	`
+	// collect data fields into a slice
+	args := []interface{}{
+		school.Name,
+		school.Level,
+		school.Contact,
+		school.Phone,
+		school.Email,
+		school.Website,
+		school.Address,
+		pq.Array(school.Mode),
+	}
+	// run query ... -> expand the slice
+	return m.DB.QueryRow(query, args...).Scan(&school.ID, &school.CreatedAt, &school.Version)
 }
 
 // Get() allows us to retrieve a specific School

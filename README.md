@@ -1,1 +1,0 @@
-## Go Api for schools
