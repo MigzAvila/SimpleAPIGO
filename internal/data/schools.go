@@ -126,7 +126,25 @@ func (m SchoolModel) Get(id int64) (*School, error) {
 
 // Update() allows us to update a specific School
 func (m SchoolModel) Update(school *School) error {
-	return nil
+	query := `
+        UPDATE schools
+        SET name = $1, level = $2, contact = $3, phone = $4, email = $5, website = $6, address = $7, mode = $8, version = version + 1
+		WHERE id = $9
+		RETURNING version
+		`
+	args := []interface{}{
+		school.Name,
+		school.Level,
+		school.Contact,
+		school.Phone,
+		school.Email,
+		school.Website,
+		school.Address,
+		pq.Array(school.Mode),
+		school.ID,
+	}
+
+	return m.DB.QueryRow(query, args...).Scan(&school.Version)
 }
 
 // Delete() allows us to delete a specific School
