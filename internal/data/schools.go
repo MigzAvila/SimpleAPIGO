@@ -4,6 +4,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"appletree.miguelavila.net/internal/validator"
@@ -83,7 +84,44 @@ func (m SchoolModel) Insert(school *School) error {
 
 // Get() allows us to retrieve a specific School
 func (m SchoolModel) Get(id int64) (*School, error) {
-	return nil, nil
+	// Ensure that there is a valid id
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+	// Create the query for getting a specific School
+	query := `
+        SELECT id, name, level, contact, phone, email, website, address, mode, version
+        FROM schools
+        WHERE id = $1
+    `
+	// declare a school variable and run query
+	var school School
+	// Execute the query
+	err := m.DB.QueryRow(query, id).Scan(
+		&school.ID,
+		&school.Name,
+		&school.Level,
+		&school.Contact,
+		&school.Phone,
+		&school.Email,
+		&school.Website,
+		&school.Address,
+		pq.Array(&school.Mode),
+		&school.Version,
+	)
+
+	if err != nil {
+		// Check error type
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+
+	}
+	// Success
+	return &school, nil
 }
 
 // Update() allows us to update a specific School
