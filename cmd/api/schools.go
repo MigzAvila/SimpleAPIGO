@@ -208,7 +208,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	// This method does a complete replacement
+	// This method does a delete of a specific school
 	// get the id of the school and update the school
 	//Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
