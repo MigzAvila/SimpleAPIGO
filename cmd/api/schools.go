@@ -102,9 +102,9 @@ func (app *application) showSchoolHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Request) {
-	// This method does a complete replacement
+	// This method does a partial replacement
 	// get the id of the school and update the school
-	//Utilize Utility Methods From helpers.go
+	// Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -123,34 +123,58 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	// create an input struct to hold the data read in from the client
-	// Target decode destination
+	// Update input struct to use pointers because pointers have a default value of nil
+	// if field remains nil then we know that the client is not interested in updating the field
 	var input struct {
-		Name    string   `json:"name"`
-		Level   string   `json:"level"`
-		Contact string   `json:"contact"`
-		Phone   string   `json:"phone"`
-		Email   string   `json:"email"`
-		Website string   `json:"website"`
-		Address string   `json:"address"`
+		Name    *string  `json:"name"`
+		Level   *string  `json:"level"`
+		Contact *string  `json:"contact"`
+		Phone   *string  `json:"phone"`
+		Email   *string  `json:"email"`
+		Website *string  `json:"website"`
+		Address *string  `json:"address"`
 		Mode    []string `json:"mode"`
 	}
 	// Decode the data from the client
 	err = app.readJSON(w, r, &input)
 
+	// copy / update the fields / values in the school variable using the fields in the input struct
 	if err != nil {
 		app.badResquestReponse(w, r, err)
 		return
 	}
 
-	// copy / update the fields / values in the school variable using the fields in the input struct
-	school.Name = input.Name
-	school.Level = input.Level
-	school.Contact = input.Contact
-	school.Phone = input.Phone
-	school.Email = input.Email
-	school.Website = input.Website
-	school.Address = input.Address
-	school.Mode = input.Mode
+	if input.Name != nil {
+		school.Name = *input.Name
+	}
+
+	if input.Level != nil {
+		school.Level = *input.Level
+	}
+
+	if input.Contact != nil {
+		school.Contact = *input.Contact
+	}
+
+	if input.Phone != nil {
+		school.Phone = *input.Phone
+	}
+
+	if input.Email != nil {
+		school.Email = *input.Email
+	}
+
+	if input.Website != nil {
+		school.Website = *input.Website
+	}
+
+	if input.Address != nil {
+		school.Address = *input.Address
+	}
+
+	if input.Mode != nil {
+		school.Mode = input.Mode
+	}
 
 	// validate the data provided by the client, if the validation fails,
 	// then we send a 422 - Unprocessable responses to the client
