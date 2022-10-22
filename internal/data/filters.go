@@ -2,7 +2,11 @@
 
 package data
 
-import "appletree.miguelavila.net/internal/validator"
+import (
+	"strings"
+
+	"appletree.miguelavila.net/internal/validator"
+)
 
 type Filters struct {
 	Page     int
@@ -19,4 +23,34 @@ func ValidateFilters(v *validator.Validator, f Filters) {
 	v.Check(f.PageSize <= 100, "page_size", "must be maximum of 100")
 	// check that the sort parameter matches a value the acceptable sort list
 	v.Check(validator.In(f.Sort, f.SortList...), "sort", "invalid sort value")
+}
+
+// sortColumn() methods safety extracts the sort field query parameters
+func (f Filters) sortColumn() string {
+
+	for _, safeValue := range f.SortList {
+		if f.Sort == safeValue {
+			return strings.TrimPrefix(f.Sort, "-")
+		}
+	}
+	panic("unsafe sort parameters")
+}
+
+// sortOrder() methods determines where we should sort by ASC/DESC
+func (f Filters) sortOrder() string {
+
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
+}
+
+// limit() methods determines the LIMIT
+func (f Filters) limit() int {
+	return f.PageSize
+}
+
+// offset() methods calculates the OFFSET
+func (f Filters) offset() int {
+	return (f.Page - 1) * f.PageSize
 }
