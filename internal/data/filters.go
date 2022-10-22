@@ -1,0 +1,9 @@
+// Filename : internal/data/filters.go
+
+package data
+
+type Filters struct {
+	Page     int
+	PageSize int
+	Sort     string
+}

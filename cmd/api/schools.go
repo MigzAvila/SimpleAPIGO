@@ -245,12 +245,10 @@ func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) listSchoolsHandler(w http.ResponseWriter, r *http.Request) {
 	// create an input struct to hold our query parameters
 	var input struct {
-		Name     string
-		Level    string
-		Mode     []string
-		Page     int
-		PageSize int
-		Sort     string
+		Name  string
+		Level string
+		Mode  []string
+		data.Filters
 	}
 	// initialize a validator
 	v := validator.New()
@@ -261,10 +259,10 @@ func (app *application) listSchoolsHandler(w http.ResponseWriter, r *http.Reques
 	input.Level = app.readString(qs, "level", "")
 	input.Mode = app.readCSV(qs, "mode", []string{})
 	// get the page information
-	input.Page = app.readInt(qs, "page", 1, v)
-	input.PageSize = app.readInt(qs, "page_size", 20, v)
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
 	// get the sort information
-	input.Sort = app.readString(qs, "sort", "id")
+	input.Filters.Sort = app.readString(qs, "sort", "id")
 	// check for validation errors
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
