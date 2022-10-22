@@ -35,9 +35,9 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	// Convert our map into a JSON object
-	js, err := json.Marshal(data)
+	// js, err := json.Marshal(data)
 	// Format the JSON object for cmd -- Takes more resources than printing it normally
-	// js, err := json.MarshalIndent(data, "", "\t")
+	js, err := json.MarshalIndent(data, "", "\t")
 
 	if err != nil {
 		return err
