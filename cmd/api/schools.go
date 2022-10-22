@@ -210,7 +210,7 @@ func (app *application) updateSchoolHandler(w http.ResponseWriter, r *http.Reque
 func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Request) {
 	// This method does a delete of a specific school
 	// get the id of the school and update the school
-	//Utilize Utility Methods From helpers.go
+	// Utilize Utility Methods From helpers.go
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -238,4 +238,37 @@ func (app *application) deleteSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+}
+
+// listSchoolsHandler() allows the client to see a listing of schools
+// based on a set of criteria
+func (app *application) listSchoolsHandler(w http.ResponseWriter, r *http.Request) {
+	// create an input struct to hold our query parameters
+	var input struct {
+		Name     string
+		Level    string
+		Mode     []string
+		Page     int
+		PageSize int
+		Sort     string
+	}
+	// initialize a validator
+	v := validator.New()
+	// get the URL values in a map
+	qs := r.URL.Query()
+	// use the helper method to extract the values
+	input.Name = app.readString(qs, "name", "")
+	input.Level = app.readString(qs, "level", "")
+	input.Mode = app.readCSV(qs, "mode", []string{})
+	// get the page information
+	input.Page = app.readInt(qs, "page", 1, v)
+	input.PageSize = app.readInt(qs, "page_size", 20, v)
+	// get the sort information
+	input.Sort = app.readString(qs, "sort", "id")
+	// check for validation errors
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+	}
+	// Print the results
+	fmt.Fprintf(w, "%+v\n", input)
 }

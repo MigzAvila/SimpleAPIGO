@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
+	"appletree.miguelavila.net/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -113,4 +115,46 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 	}
 
 	return nil
+}
+
+// readString() method returns a string value from the query string
+// or returns an default value if no matching value is found
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	// Get the value
+	value := qs.Get(key)
+	if value == "" {
+		value = defaultValue
+	}
+	return value
+}
+
+// readCSV() method splits a value into a slice base on the comma separator
+// if no matching value is found then it default values is returned
+func (app *application) readCSV(qs url.Values, key string, defaultValue []string) []string {
+	// Get the value
+	value := qs.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+	// split string based on the ',' delimiter
+	return strings.Split(value, ",")
+}
+
+// readInt() method converts a string value from the query to an integer value
+// if the value cannot be converted to an integer then a validation error is added
+// to the validation error map
+func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+	// Get the value
+	value := qs.Get(key)
+	if value == "" {
+		return defaultValue
+	}
+	// convert the string value to an integer
+	valueInt, err := strconv.Atoi(value)
+	if err != nil {
+		v.AddError(key, fmt.Sprintf("must be an integer value"))
+		return defaultValue
+	}
+	return valueInt
+
 }
