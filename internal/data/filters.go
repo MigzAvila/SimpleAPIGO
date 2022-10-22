@@ -3,6 +3,7 @@
 package data
 
 import (
+	"math"
 	"strings"
 
 	"appletree.miguelavila.net/internal/validator"
@@ -53,4 +54,28 @@ func (f Filters) limit() int {
 // offset() methods calculates the OFFSET
 func (f Filters) offset() int {
 	return (f.Page - 1) * f.PageSize
+}
+
+// type Metadata contains the metadata to help with pagination
+type Metadata struct {
+	CurrentPage  int `json:"current_page,omitempty"`
+	PageSize     int `json:"page_size,omitempty"`
+	FirstPage    int `json:"first_page,omitempty"`
+	LastPage     int `json:"last_page,omitempty"`
+	TotalRecords int `json:"total_records,omitempty"`
+}
+
+// calculatesMetadata() methods computes the values for the metadata fields
+func calculatesMetadata(totalRecords int, page int, pageSize int) Metadata {
+	if totalRecords == 0 {
+		return Metadata{}
+
+	}
+	return Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     int(math.Ceil(float64(totalRecords) / float64(pageSize))),
+		TotalRecords: totalRecords,
+	}
 }

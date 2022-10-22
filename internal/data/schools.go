@@ -225,11 +225,12 @@ func (m SchoolModel) Delete(id int64) error {
 }
 
 // func GetAll() method returns a list of all school sorted by id
-func (m SchoolModel) GetAll(name string, level string, mode []string, filters Filters) ([]*School, error) {
+func (m SchoolModel) GetAll(name string, level string, mode []string, filters Filters) ([]*School, Metadata, error) {
 	// construct the query
 	query := fmt.Sprintf(
 		`
-			SELECT
+			SELECT 
+					COUNT(*) OVER(), 
 					id, create_at, name, level, 
 					contact, phone, email, website, 
 					address, mode, version
@@ -250,10 +251,12 @@ func (m SchoolModel) GetAll(name string, level string, mode []string, filters Fi
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		// Check error type
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
 	defer rows.Close()
+
+	totalRecords := 0
 
 	// initialize an empty slice
 	schools := []*School{}
@@ -262,6 +265,7 @@ func (m SchoolModel) GetAll(name string, level string, mode []string, filters Fi
 		var school School
 		// scan the values from the row into school
 		err := rows.Scan(
+			&totalRecords,
 			&school.ID,
 			&school.CreatedAt,
 			&school.Name,
@@ -275,7 +279,7 @@ func (m SchoolModel) GetAll(name string, level string, mode []string, filters Fi
 			&school.Version,
 		)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 		// add the school to the slice
 		schools = append(schools, &school)
@@ -283,9 +287,11 @@ func (m SchoolModel) GetAll(name string, level string, mode []string, filters Fi
 	}
 	// check for errors after looping the resultset
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
+	metadata := calculatesMetadata(totalRecords, filters.Page, filters.PageSize)
+
 	// return the slice of Schools
-	return schools, nil
+	return schools, metadata, nil
 }
