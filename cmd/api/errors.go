@@ -48,7 +48,19 @@ func (app *application) MethodNotAllowedReponse(w http.ResponseWriter, r *http.R
 	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 
-// User provided validation errors
+// User passed a bad request
+func (app *application) badResquestReponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
+// Edit Conflict validation errors
 func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
+
+// User provided validation errors
+func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Request) {
+	//prepare a message with error
+	message := "unable to update the record due to an edit conflict, please try again"
+	app.errorResponse(w, r, http.StatusConflict, message)
 }

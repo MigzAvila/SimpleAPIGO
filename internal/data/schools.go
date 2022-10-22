@@ -125,11 +125,17 @@ func (m SchoolModel) Get(id int64) (*School, error) {
 }
 
 // Update() allows us to update a specific School
+// KEY: GO's http.server handles each request in its own goroutine
+// Avoid data races
+// A: Apples 3 buys 3 so 0 remains
+// B: Apples 3 buys 2 so 1 remains
+// USING Optimistic Locking to prevent multiple Optimistic sql
 func (m SchoolModel) Update(school *School) error {
 	query := `
         UPDATE schools
         SET name = $1, level = $2, contact = $3, phone = $4, email = $5, website = $6, address = $7, mode = $8, version = version + 1
 		WHERE id = $9
+		AND version = $10
 		RETURNING version
 		`
 	args := []interface{}{
@@ -142,9 +148,21 @@ func (m SchoolModel) Update(school *School) error {
 		school.Address,
 		pq.Array(school.Mode),
 		school.ID,
+		school.Version,
+	}
+	// check for edit conflict
+	err := m.DB.QueryRow(query, args...).Scan(&school.Version)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
 	}
 
-	return m.DB.QueryRow(query, args...).Scan(&school.Version)
+	return nil
+
 }
 
 // Delete() allows us to delete a specific School
